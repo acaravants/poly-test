@@ -1,0 +1,46 @@
+<link rel="import" href="./bower_components/polymer/polymer-element.html">
+<link rel="import" href="./bower_components/iron-input/iron-input.html">
+
+<dom-module id="poly-test">
+  <template>
+    <style>
+      host: {
+        display: inline-block;
+        background-color: #ccc;
+        border-radius: 5px;
+        padding: 5px;
+      }
+    </style>
+    <div>
+      <p>I'm a DOM element. This is <b>[[owner]]</b>'s name-tag element'!</p>
+      <iron-input bind-value="{{owner}}">
+        <input is="iron-input" placeholder="Your name here... ">
+      </iron-input>
+    </div>
+    <div>
+      <slot></slot>
+    </div>
+  </template>
+  <script>
+    class PolyTest extends Polymer.Element {
+      static get is() {
+        return 'poly-test';
+      }
+
+      static get properties() {
+        return {
+          owner: {
+            type: String,
+            value: ""
+          }
+        };
+      }
+
+      /** constructor() {
+        super();
+        this.owner = "Alejandro";
+      }**/
+
+    }customElements.define(PolyTest.is, PolyTest);
+  </script>
+</dom-module>
