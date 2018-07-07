@@ -1,0 +1,57 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<! -- import template repeater -->
+<link rel="import" href="../bower_components/polymer/lib/elements/dom-repeat.html">
+<!-- import array selector -->
+<link rel="import" href="../bower_components/polymer/lib/elements/array-selector.html">
+
+<dom-module id="x-custom">
+
+  <template>
+
+    <div> Employee list: </div>
+    <template is="dom-repeat" id="employeeList" items="{{employees}}">
+        <div>First name: <span>{{item.first}}</span></div>
+        <div>Last name: <span>{{item.last}}</span></div>
+        <button on-click="toggleSelection">Select</button>
+    </template>
+
+    <array-selector id="selector" items="{{employees}}" selected="{{selected}}" multi toggle></array-selector>
+
+    <div> Selected employees: </div>
+    <template is="dom-repeat" items="{{selected}}">
+        <div>First name: <span>{{item.first}}</span></div>
+        <div>Last name: <span>{{item.last}}</span></div>
+    </template>
+
+  </template>
+
+  <script>
+    class XCustom extends Polymer.Element {
+
+      static get is() { return 'x-custom'; }
+
+      static get properties() {
+        return {
+          employees: {
+            type: Array,
+            value() {
+              return [
+                {first: 'Bob', last: 'Smith'},
+                {first: 'Sally', last: 'Johnson'},
+                // ...
+              ];
+            }
+          }
+        }
+      }
+
+      toggleSelection(e) {
+        var item = this.$.employeeList.itemForElement(e.target);
+        this.$.selector.select(item);
+      }
+    }
+
+    customElements.define(XCustom.is, XCustom);
+  </script>
+
+</dom-module>

@@ -1,0 +1,187 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../bower_components/polymer/lib/elements/array-selector.html">
+
+<dom-module id="employee-list">
+  <template>
+    <style>
+    :host {
+      display: inline-block;
+      text-transform: uppercase;
+    }
+
+    .inputClass {
+      text-transform: uppercase;
+    }
+
+    .item {
+      padding: 5px 10px 10px 15px;
+      border: 1px solid #000;
+      margin: 5px;
+    }
+
+    #pink {
+      background-color: rgb(234, 168, 237);
+    }
+
+     #red {
+       background-color: rgb(182, 12, 34);
+     }
+
+     #blue {
+       background-color: rgb(129, 175, 254);
+     }
+
+     #yellow {
+       background-color: rgb(210, 221, 83);
+     }
+
+     #green {
+       background-color: rgb(68, 209, 26);
+     }
+
+    #itemColor {
+      background-color: #bfb3b7;
+    }
+    </style>
+    <div>
+      <span>Filter: </span>
+      <input type="text" value="{{searchString::input}}">
+      <span>Sort: </span>
+      <select type="text" name="sortVal" value="{{sortVal::change}}" id="sortVal">
+        <option value="first">First Name</option>
+        <option value="last">Last Name</option>
+        <option value="years">Years</option>
+      </select>
+    </div>
+    <div>Employee list:</div>
+    <template is="dom-repeat" items="[[employees]]" as="people" filter="{{computeFilter(searchString)}}" sort="{{_select(sortVal)}}">
+      <div class="item" id="[[employeColor(people.years)]]">
+        <div>First name: <span>[[people.first]]</span></div>
+        <div>Last name: <span>[[people.last]]</span></div>
+        <div>Years: <span>[[people.years]]</span></div>
+        <div>
+          <button on-click="toggleSelection">Select</button>
+        </div>
+      </div>
+    </template>
+
+    <array-selector id="selector" items="{{employess}}" selected="{{selected}}" multi toggle></array-selector>
+
+    <div>Selected employees</div>
+    <template is="dom-repeat" items="{{selected}}">
+      <div>Fist name: <span>{{item.first}}</span></div>
+      <div>Last name: <span>{{item.last}}</span></div>
+    </template>
+  </template>
+  <script>
+    class EmployeeList extends Polymer.Element {
+      static get is(){
+        return 'employee-list';
+      }
+
+      static get properties() {
+        return {
+          employees: {
+            type: Array,
+            value: []
+          },
+          filterVal: {
+            type: String,
+            value: ''
+          },
+          searchString: {
+            type: String,
+            value: ''
+          }
+        };
+      }
+
+      constructor() {
+        super();
+        this.employees = [
+          {id: 0, first: 'alejandra', last: 'barrales', years: 33, ordered: 0 },
+          {id: 1, first: 'beatriz', last: 'canseco', years: 44, ordered: 0 },
+          {id: 2, first: 'carla', last: 'damariz', years: 55, ordered: 0 },
+          {id: 3, first: 'diana', last: 'fuentes', years: 88, ordered: 0 },
+          {id: 4, first: 'fernanda', last: 'rios', years: 22, ordered: 0 },
+          {id: 5, first: 'gabriela', last: 'vasquez', years: 17, ordered: 0 },
+          {id: 6, first: 'helena', last: 'monrroy', years: 25, ordered: 0 },
+          {id: 7, first: 'ilse', last: 'ruiz', years: 30, ordered: 0 },
+          {id: 8, first: 'jazmin', last: 'franco', years: 15, ordered: 0 },
+          {id: 9, first: 'karina', last: 'zurita', years: 41, ordered: 0 }
+        ];
+      }
+
+      _filter(val) {
+        return (people) => {
+          if (!val) return true;
+          if (!people) return false;
+          return (people.first && ~people.first.indexOf(val));
+        };
+      }
+
+      _select(value) {
+        switch (value) {
+          case 'first':
+            return (a, b) => {
+              if(a.first === b.first) return 0;
+              return a.first < b.first ? -1 : 1;
+            };
+          case 'last':
+            return (a, b) => {
+              if (a.last === b.last) return 0;
+              return a.last < b.last ? -1 : 1;
+            };
+          case 'years':
+            return (a, b) => {
+              if (a.years === b.years) return 0;
+              return a.years < b.years ? -1 : 1;
+            };
+        }
+      }
+
+      toggleSelection(e) {
+        let item = this.$.EmployeeList.itemForElement(e.target);
+        this.$.selector.select(item);
+      }
+
+      employeColor(years) {
+        if (years < 20) {
+          return 'pink';
+        } else if (years < 30) {
+          return 'blue';
+        } else if (years < 40) {
+          return 'yellow';
+        } else if (years < 50) {
+          return 'red';
+        } else if (years < 60) {
+          return 'green';
+        } else{
+          return 'itemColor';
+        }
+      }
+
+      computeFilter(string) {
+        if (!string) {
+          return null;
+        } else {
+          string = string.toLowerCase();
+          return (people) => {
+            let first = people.first.toLowerCase();
+            let last = people.last.toLowerCase();
+            return (first.indexOf(string) !== -1 || last.indexOf(string) !== -1);
+          };
+        }
+      }
+
+      order(e) {
+        console.log('click in button!');
+        e.model.set('employees.ordered', e.model.item.ordered+1);
+      }
+
+    }customElements.define(EmployeeList.is, EmployeeList);
+
+  </script>
+
+</dom-module>
