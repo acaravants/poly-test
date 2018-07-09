@@ -1,78 +1,110 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/polymer/lib/elements/dom-repeat.html">
 <link rel="import" href="../bower_components/polymer/lib/elements/array-selector.html">
+<link rel="import" href="../bower_components/shadycss/apply-shim.html">
 
 <dom-module id="employee-list">
   <template>
     <style>
-    :host {
-      display: inline-block;
-      text-transform: uppercase;
-    }
+      :host {
+        display: inline-block;
+        text-transform: uppercase;
+      }
 
-    .inputClass {
-      text-transform: uppercase;
-    }
+      :host {
+        @apply --employee-list;
+        --employee-list-item: {
+          padding: 5px 10px 10px 15px;
+          border: 1px solid #000;
+          margin: 5px;
+        };
+      }
 
-    .item {
-      padding: 5px 10px 10px 15px;
-      border: 1px solid #000;
-      margin: 5px;
-    }
+      .inputClass {
+        text-transform: uppercase;
+      }
 
-    #pink {
-      background-color: rgb(234, 168, 237);
-    }
+      .list-employee-container {
+        display: flex;
 
-     #red {
-       background-color: rgb(182, 12, 34);
-     }
+        justify-content: center;
+      }
 
-     #blue {
-       background-color: rgb(129, 175, 254);
-     }
+      .list-employee-container-list {
+        max-width: 50%;
+      }
 
-     #yellow {
-       background-color: rgb(210, 221, 83);
-     }
+      .list-selected-container-list {
+        max-width: 50%;
+        padding: 38px 0 0 0;
+      }
 
-     #green {
-       background-color: rgb(68, 209, 26);
-     }
+      .item {
+        @apply --employee-list-item;
+      }
 
-    #itemColor {
-      background-color: #bfb3b7;
-    }
+      .less-twenty {
+        background-color: var(--employee-list-less-twenty, rgb(234, 168, 237));
+      }
+
+       .less-thirty {
+         background-color: var(--employee-list-less-thirty, rgb(182, 12, 34));
+       }
+
+       .less-fourty {
+         background-color: var(--employee-list-less-fourty, rgb(129, 175, 254));
+       }
+
+       .less-fitty {
+         background-color: var(--employee-list-less-fitty, rgb(210, 221, 83));
+       }
+
+       .less-sixty {
+         background-color: var(--employee-list-less-sixty, rgb(68, 209, 26));
+       }
+
+      .other-age {
+        background-color: var(--employee-list-other-age, #bfb3b7);
+      }
     </style>
-    <div>
-      <span>Filter: </span>
-      <input class="inputClass" type="text" value="{{searchString::input}}">
-      <span>Sort: </span>
-      <select type="text" name="sortVal" value="{{sortVal::change}}" id="sortVal">
-        <option value="first">First Name</option>
-        <option value="last">Last Name</option>
-        <option value="years">Years</option>
-      </select>
-    </div>
-    <div>Employee list:</div>
-    <template is="dom-repeat" items="[[employees]]" as="people" filter="{{computeFilter(searchString)}}" sort="{{_select(sortVal)}}">
-      <div class="item" id="[[employeColor(people.years)]]">
-        <div>First name: <span>[[people.first]]</span></div>
-        <div>Last name: <span>[[people.last]]</span></div>
-        <div>Years: <span>[[people.years]]</span></div>
+    <div class="list-employee-container">
+      <div class="list-employee-container-list">
         <div>
-          <button on-click="toggleSelection">Select</button>
+          <span>Filter: </span>
+          <input class="inputClass" type="text" value="{{searchString::input}}"><br/>
+          <span>Sort: </span>
+          <select type="text" name="sortVal" value="{{sortVal::change}}" id="sortVal">
+            <option value="first">First Name</option>
+            <option value="last">Last Name</option>
+            <option value="years">Years</option>
+          </select>
         </div>
+        <div>Employee list:</div>
+        <template is="dom-repeat" id="employeeList" items="[[employees]]" as="people" filter="{{computeFilter(searchString)}}" sort="{{_select(sortVal)}}">
+          <div class$="item [[employeColor(people.years)]]">
+            <div>First name: <span>[[people.first]]</span></div>
+            <div>Last name: <span>[[people.last]]</span></div>
+            <div>Years: <span>[[people.years]]</span></div>
+            <div>
+              <button on-click="toggleSelection">Select</button>
+            </div>
+          </div>
+        </template>
       </div>
-    </template>
-
-    <array-selector id="selector" items="{{employess}}" selected="{{selected}}" multi toggle></array-selector>
-
-    <div>Selected employees</div>
-    <template is="dom-repeat" items="{{selected}}">
-      <div>Fist name: <span>{{item.first}}</span></div>
-      <div>Last name: <span>{{item.last}}</span></div>
-    </template>
+      <div class="list-selected-container-list">
+        <div>Selected employees</div>
+        <template is="dom-repeat" items="[[selected]]">
+          <div class$="item [[employeColor(item.years)]]">
+            <div>First name: <span>[[item.first]]</span></div>
+            <div>Last name: <span>[[item.last]]</span></div>
+            <div>Years: <span>[[item.years]]</span></div>
+            <div>
+              <button on-click="removeSelection">Remove</button>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
   </template>
   <script>
     class EmployeeList extends Polymer.Element {
@@ -83,6 +115,10 @@
       static get properties() {
         return {
           employees: {
+            type: Array,
+            value: []
+          },
+          selected: {
             type: Array,
             value: []
           },
@@ -142,23 +178,36 @@
       }
 
       toggleSelection(e) {
-        let item = this.$.EmployeeList.itemForElement(e.target);
-        this.$.selector.select(item);
+        let item = e.model.people;
+        const index = this.selected.indexOf(item);
+        if(index !== -1) {
+          this.splice('selected', index, 1);
+        } else {
+          this.push('selected', item);
+        }
+      }
+
+      removeSelection(e) {
+        let item = e.model.item;
+        const index = this.selected.indexOf(item);
+        if(index !== -1) {
+          this.splice('selected', index, 1);
+        }
       }
 
       employeColor(years) {
         if (years < 20) {
-          return 'pink';
+          return 'less-twenty';
         } else if (years < 30) {
-          return 'blue';
+          return 'less-thirty';
         } else if (years < 40) {
-          return 'yellow';
+          return 'less-fourty';
         } else if (years < 50) {
-          return 'red';
+          return 'less-fitty';
         } else if (years < 60) {
-          return 'green';
+          return 'less-sixty';
         } else{
-          return 'itemColor';
+          return 'other-age';
         }
       }
 

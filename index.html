@@ -4,15 +4,24 @@
     <meta charset="utf-8">
     <title></title>
     <script src="./bower_components/webcomponentsjs/webcomponents-loader.js"></script>
-    <link rel="import" href="./components/poly-test.html">
+    <link rel="import" href="./bower_components/polymer/lib/elements/custom-style.html">
     <link rel="import" href="./components/employee-list.html">
-    <link rel="import" href="./components/x-custom.html">
   </head>
   <body>
-    <poly-test>
-      <img src="https://www.polymer-project.org/images/logos/p-logo-32.png">
-    </poly-test>
+    <custom-style>
+      <style is="custom-style">
+      employee-list {
+        --employee-list-item: {
+          padding: 1.5rem;
+        }
+      }
+      </style>
+    </custom-style>
+    <style>
+      employee-list {
+        --employee-list-less-sixty: orange;
+      }
+    </style>
     <employee-list></employee-list>
-    <x-custom></x-custom>
   </body>
 </html>
