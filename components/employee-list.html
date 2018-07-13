@@ -76,34 +76,35 @@
             <option value="first">First Name</option>
             <option value="last">Last Name</option>
             <option value="years">Years</option>
+            <option value="winner">Winner</option>
           </select>
         </div>
         <div>Employee list:</div>
-        <template is="dom-repeat" id="employeeList" items="[[employees]]" as="people" filter="{{computeFilter(searchString)}}" sort="{{_select(sortVal)}}">
+        <template is="dom-repeat" id="employeeList" items="[[data]]" as="people" filter="{{computeFilter(searchString)}}" sort="{{_select(sortVal)}}">
           <div class$="item [[employeColor(people.years)]]">
             <div>First name: <span>[[people.first]]</span></div>
             <div>Last name: <span>[[people.last]]</span></div>
             <div>Years: <span>[[people.years]]</span></div>
+            <div>Winner: <span>[[people.win]]</span></div>
             <div>
-              <button on-click="toggleSelection">Select</button>
+              <button on-click="order">Win</button>
             </div>
           </div>
         </template>
       </div>
+
       <div class="list-selected-container-list">
-        <div>Selected employees</div>
-        <template is="dom-repeat" items="[[selected]]">
-          <div class$="item [[employeColor(item.years)]]">
-            <div>First name: <span>[[item.first]]</span></div>
-            <div>Last name: <span>[[item.last]]</span></div>
-            <div>Years: <span>[[item.years]]</span></div>
-            <div>
-              <button on-click="removeSelection">Remove</button>
+        <div>Winner list:</div>
+          <button on-click="go">Winner Random</button>
+          <template is="dom-repeat" items="[[winner]]" >
+            <div class$="item [[employeColor(item.years)]]">
+              <div>First name: <span>[[item.first]]</span></div>
+              <div>Last name: <span>[[item.last]]</span></div>
+              <div>Years: <span>[[item.years]]</span></div>
+              <div>Winner: <span>[[item.win]]</span></div>
             </div>
-          </div>
-        </template>
+          </template>
       </div>
-    </div>
   </template>
   <script>
     class EmployeeList extends Polymer.Element {
@@ -113,7 +114,11 @@
 
       static get properties() {
         return {
-          employees: {
+          data: {
+            type: Array,
+            value: []
+          },
+          winner: {
             type: Array,
             value: []
           },
@@ -132,19 +137,19 @@
         };
       }
 
-      constructor() {
-        super();
-        this.employees = [
-          {id: 0, first: 'alejandra', last: 'barrales', years: 33, ordered: 0 },
-          {id: 1, first: 'beatriz', last: 'canseco', years: 44, ordered: 0 },
-          {id: 2, first: 'carla', last: 'damariz', years: 55, ordered: 0 },
-          {id: 3, first: 'diana', last: 'fuentes', years: 88, ordered: 0 },
-          {id: 4, first: 'fernanda', last: 'rios', years: 22, ordered: 0 },
-          {id: 5, first: 'gabriela', last: 'vasquez', years: 17, ordered: 0 },
-          {id: 6, first: 'helena', last: 'monrroy', years: 25, ordered: 0 },
-          {id: 7, first: 'ilse', last: 'ruiz', years: 30, ordered: 0 },
-          {id: 8, first: 'jazmin', last: 'franco', years: 15, ordered: 0 },
-          {id: 9, first: 'karina', last: 'zurita', years: 41, ordered: 0 }
+      connectedCallback() {
+        super.connectedCallback();
+        this.data = [
+          {id: 9, first: 'alejandra', last: 'barrales'},
+          {id: 4, first: 'beatriz', last: 'canseco'},
+          {id: 2, first: 'carla', last: 'damariz'},
+          {id: 6, first: 'diana', last: 'fuentes'},
+          {id: 1, first: 'fernanda', last: 'rios'},
+          {id: 8, first: 'gabriela', last: 'vasquez'},
+          {id: 3, first: 'helena', last: 'monrroy'},
+          {id: 7, first: 'ilse', last: 'ruiz'},
+          {id: 5, first: 'jazmin', last: 'franco'},
+          {id: 0, first: 'karina', last: 'zurita'}
         ];
       }
 
@@ -173,6 +178,11 @@
               if (a.years === b.years) return 0;
               return a.years < b.years ? -1 : 1;
             };
+          case 'winner':
+            return (a, b) => {
+              if (a.win === b.win) return 0;
+              return a.win > b.win ? -1 : 1;
+            }
         }
       }
 
@@ -186,12 +196,35 @@
         }
       }
 
+      go(e) {
+        let ramdomItem = this.data[Math.floor(Math.random() * this.data.length)];
+        console.log(Math.floor(Math.random() * this.data.length))
+        let index = this.winner.indexOf(ramdomItem);
+
+        if(index === -1){
+          this.data[ramdomItem.id].win += 1;
+          console.log(this.data[ramdomItem.id]);
+          ramdomItem.win += 1;
+          this.push('winner', ramdomItem);
+        }else{
+          console.log('upgrade data');
+          this.data[ramdomItem.id].win += 1;
+          console.log(this.data[ramdomItem.id]);
+        }
+
+      }
+
       removeSelection(e) {
         let item = e.model.item;
         const index = this.selected.indexOf(item);
         if(index !== -1) {
           this.splice('selected', index, 1);
         }
+      }
+
+      order(e) {
+        e.model.set('people.win', e.model.people.win+1);
+
       }
 
       employeColor(years) {
@@ -221,11 +254,6 @@
             return (first.indexOf(string) !== -1 || last.indexOf(string) !== -1);
           };
         }
-      }
-
-      order(e) {
-        console.log('click in button!');
-        e.model.set('employees.ordered', e.model.item.ordered+1);
       }
 
     }customElements.define(EmployeeList.is, EmployeeList);

@@ -1,0 +1,60 @@
+<dom-module id="component-child">
+    <template>
+        <style>
+            .text {
+                font-size: 15px;
+            }
+
+            :root {
+                --var1 : black;
+            }
+
+            .text {
+                color: var(--var1);
+            }
+        </style>
+        <div class="text">
+            My name is [[name]]
+        </div>
+
+        <template is="dom-repeat" items="[[listItems]]" as="column">
+            [[column]]
+        </template>
+
+        <iron-input>
+            <input value = {{inputValue::input}}/>
+        </iron-input>
+    </template>
+    <script>
+        class ComponentChild extends Polymer.Element{
+            static get is() {return 'component-child';}
+            static get properties(){
+                return{
+                    name: {
+                        type: String,
+                        value: ""
+                    },
+                    age: {
+                        type: Number,
+                        value: 0,
+                        observer: 'cambiarAge',
+                        notify: true
+                    },
+                    inputValue: {
+                        type: String,
+                        value: ''
+                    },
+                    listItems: {
+                        type: Array,
+                        value : ["item1", "item2"]
+                    }
+                };
+            }
+
+            cambiarAge() {
+                alert("se cambio la edad" +  this.age);
+            }
+        }
+        customElements.define(ComponentChild.is, ComponentChild);
+    </script>
+</dom-module>

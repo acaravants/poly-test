@@ -1,0 +1,228 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../bower_components/shadycss/apply-shim.html">
+
+<dom-module id="data-list">
+  <template>
+    <style>
+    :host {
+      display: inline-block;
+      text-transform: uppercase;
+    }
+
+    :host {
+      @apply --data-list;
+      --data-list-item: {
+        padding 5px 10px 15px;
+        border: 1px solid rgb(15, 42, 37);
+        margin: 5px;
+      }
+    }
+
+      .inputClass {
+        text-transform: uppercase;
+      }
+
+      .data-list-container {
+        display: flex;
+      }
+
+      .data-list-container-list {
+        width: 300px;
+      }
+
+      .item {
+        @apply --data-list-item;
+      }
+
+      .item-blue {
+        background-color:  rgb(129, 175, 254);
+      }
+
+      .item-grey {
+        background-color: rgb(154, 143, 154);
+      }
+
+      .item-green {
+        background-color: rgb(43, 210, 60);
+      }
+
+      .item-orange {
+        background-color: rgb(207, 114, 55);
+      }
+
+      .item-pink {
+        background-color: rgb(184, 21, 187);
+      }
+
+    </style>
+    <div class="data-list-container">
+      <div class="data-list-container-list">
+        <div>
+          <div>
+            <span>Filter: </span>
+            <input type="text" class="inputClass" value="{{searchVal::input}}">
+          </div>
+          <span> Sort: </span>
+          <select name="sortVal" type="text" id="sortVal" value="{{sortVal::change}}">
+            <option value="first">First Name</option>
+            <option value="last">Last Name</option>
+            <option value="age">Age</option>
+            <option value="win">Winner</option>
+          </select>
+        </div>
+        <div>Data List: </div>
+        <template is="dom-repeat" id="dataList"  items="[[dataList]]" as="people" filter="{{computeFilter(searchVal)}}" sort="{{select(sortVal)}}">
+          <div class$="item [[itemColor(people.age)]]">
+            <div>First Name: <span>[[people.first]]</span></div>
+            <div>Last Name: <span>[[people.last]]</span></div>
+            <div>Age: <span>[[people.age]]</span></div>
+            <div>Winner: <span>[[people.win]]</span></div>
+          </div>
+        </template>
+      </div>
+
+      <div class="data-list-container-list">
+        <div>Winner List: </div>
+        <button on-click="go">Win Randon</button>
+        <template is="dom-repeat" items="[[dataWinner]]" sort="{{select('win')}}">
+          <div class$="item [[itemColor(item.age)]]">
+            <div>First Name: <span>[[item.first]]</span></div>
+            <div>Last Name: <span>[[item.last]]</span></div>
+            <div>Age: <span>[[item.age]]</span></div>
+            <div>Winner: <span>[[item.win]]</span></div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </template>
+  <script>
+    class DataList extends Polymer.Element {
+      static get is() {
+        return 'data-list';
+      }
+
+      static get properties() {
+        return {
+          dataList: {
+            type: Array,
+            value: [],
+            observer: '_refreshObserver'
+          },
+          dataWinner: {
+            type: Array,
+            value: []
+          },
+          filterVal: {
+            type: String,
+            value: ''
+          },
+          searchVal: {
+            type: String,
+            value: ''
+          }
+        };
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        this.dataList = [
+          {first: 'alejandra', last: 'barrales', age: 15, win: 0},
+          {first: 'beatriz', last: 'canseco', age: 17, win: 0},
+          {first: 'carla', last: 'damariz', age: 12, win: 0},
+          {first: 'diana', last: 'fuentes', age: 5, win: 0},
+          {first: 'fernanda', last: 'rios', age: 55, win: 0},
+          {first: 'gabriela', last: 'vasquez', age: 88, win: 0},
+          {first: 'helena', last: 'monrroy', age: 45, win: 0},
+          {first: 'ilse', last: 'ruiz', age: 27, win: 0},
+          {first: 'jazmin', last: 'franco', age: 39, win: 0},
+          {first: 'karina', last: 'zurita', age: 31, win: 0 }
+        ]
+      }
+
+      _refreshObserver() {
+        if (this.datalist !== undefined && this.datalist !== []) {
+          this.$.datalist.render();
+        }
+      }
+
+      winnerObserver(e) {
+        let item = e.model.people;
+        if (item.win !== this.datalist.win) {
+          return this.datalist.win;
+        }
+      }
+
+      itemColor(age) {
+        if (age < 15) {
+          return 'item-blue';
+        } else if (age >= 15 && age <= 30) {
+          return 'item-grey';
+        } else if (age >= 31 && age <= 40) {
+          return 'item-green';
+        } else if (age >= 41 && age <= 60) {
+          return 'item-orange';
+        } else if (age > 60) {
+          return 'item-pink';
+        }
+      }
+
+      select(value) {
+        switch (value) {
+          case 'first':
+            return (a, b) => {
+              if (a.first === b.first) return 0;
+              return a.first < b.first ? -1 : 1;
+            };
+            break;
+          case 'last':
+            return (a, b) => {
+              if (a.last === b.last) return 0;
+              return a.last < b.last ? -1 : 1;
+            };
+            break;
+          case 'win':
+            return (a, b) => {
+              if (a === b) return 0;
+              return a.win > b.win ? -1 : 1;
+            }
+            break;
+          case 'age':
+            return (a, b) => {
+              if (a === b) return 0;
+              return a.age < b.age ? -1 : 1;
+            }
+        }
+      }
+
+      go(e) {
+
+        let item = this.dataList[Math.floor(Math.random() * this.dataList.length)];
+        item.win += 1;
+
+        let index = this.dataWinner.indexOf(item);
+
+        if (index === -1) {
+          this.push('dataWinner', item);
+        } else {
+          this.splice('dataWinner', index, 1);
+          this.push('dataWinner', item);
+        }
+      }
+
+      computeFilter(string) {
+        if (!string) {
+          return null;
+        } else {
+          string = string.toLowerCase();
+          return (people) => {
+            let first = people.first.toLowerCase();
+            let last = people.last.toLowerCase();
+            return (first.indexOf(string) !== -1 || last.indexOf(string) !== -1);
+          };
+        }
+      }
+
+    }customElements.define(DataList.is, DataList);
+  </script>
+</dom-module>

@@ -1,0 +1,27 @@
+devuelve = (ARRAYSTRING, ARRAYINTENTOS) => {
+ const arrayResultados = [];
+ for (let i = 0; i<ARRAYSTRING.length; i++){
+   const astring = ARRAYSTRING[i].slice('');
+   let abierto = 0, cerrado = 0;
+   const arrayBalance = [];
+   arrayBalance.push(astring[0]);
+   for (let j = 1; j <astring.length; j++){
+       if (astring[j] == '<')
+           arrayBalance.push('<');
+       else if (astring[j] == '>' && arrayBalance[arrayBalance.length -1] == '<')
+           arrayBalance.pop();
+       else if (astring[j] == '>' && arrayBalance[arrayBalance.length -1] != '<')
+           arrayBalance.push('>');
+   }
+   if (arrayBalance.length <= ARRAYINTENTOS[i]){
+     arrayResultados.push(1);
+   }else {
+       arrayResultados.push(0);
+   }
+ }
+ return arrayResultados;
+}
+
+ARRAYSTRING = ["<<>", "<<<>>>","<<<>","<>","><>","<>>>"];
+ARRAYINTENTOS = [1,1,1,2,0,1];
+devuelve(ARRAYSTRING, ARRAYINTENTOS);
